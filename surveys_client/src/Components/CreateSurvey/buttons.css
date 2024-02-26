@@ -1,0 +1,14 @@
+.buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+.buttons_1 {
+    display: flex;
+    justify-content: space-around;
+}
+
+.blue-radio[type="radio"]:checked + span:after {
+    border-color: #0083CA;
+    background-color: #0083CA;
+}

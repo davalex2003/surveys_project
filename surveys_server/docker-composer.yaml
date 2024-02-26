@@ -1,0 +1,17 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Garethbale29
+      MYSQL_DATABASE: surveys_portal
+      MYSQL_USER: backend
+      MYSQL_PASSWORD: garethbale29
+      TZ: Europe/Moscow
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d/

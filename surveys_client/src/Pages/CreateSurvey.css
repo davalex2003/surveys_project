@@ -1,0 +1,17 @@
+.domen {
+    margin-top: 24px;
+}
+
+.fixed_bottom {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 40px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+.custom-datepicker {
+    z-index: 9999;
+}

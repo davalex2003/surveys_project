@@ -1,0 +1,18 @@
+.answer_for_question {
+    width: 80%;
+}
+
+.variant {
+    color: black;
+    font-size: 22px;
+}
+
+.css-1qvr50w-MuiTypography-root {
+    margin: 0;
+    font-family: MTSText-Regular sans-serif;
+    font-weight: 400;
+    font-size: 1.5rem;
+    line-height: 1.334;
+    letter-spacing: 0;
+    display: block;
+}

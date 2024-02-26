@@ -1,0 +1,17 @@
+.navbar {
+  padding-left: 10px;
+  padding-right: 10px;
+  background-color: #0083CA;
+}
+.brand-logo {
+  font-size: 26px;
+}
+.time {
+  margin-right: 15px;
+  font-size: 18px;
+}
+
+.date {
+  margin-right: 15px;
+  font-size: 18px;
+}

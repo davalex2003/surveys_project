@@ -1,0 +1,19 @@
+.my_survey {
+    width: 90%;
+    font-size: 30px;
+    margin: 10px auto;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #0083CA;
+}
+
+.survey_buttons {
+    display: flex;
+    column-gap: 10px;
+}
+
+.survey_title {
+    width: 30%;
+}

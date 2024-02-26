@@ -1,0 +1,12 @@
+.Email {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+.EmailText {
+    border: 1px solid #ddd;
+    padding: 5px;
+    border-radius: 1px;
+    margin-top: 15px;
+    width: 100%;
+}

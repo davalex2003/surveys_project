@@ -1,0 +1,35 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: MTSText-Regular, sans-serif;
+    font-size: 18px;
+}
+
+.container {
+    width: 100%;
+    margin: 0;
+    max-width: 100%;
+}
+
+.col {
+    margin-left: 0;
+    padding: 0;
+}
+
+.row {
+    margin-bottom: 0;
+    padding: 0;
+    margin-left: 30px;
+    margin-right: 30px;
+}
+
+.btn {
+    font-family: MTSText-Regular, sans-serif;
+    font-size: 16px;
+    background-color: #0083CA !important;
+}
+
+nav ul a {
+    font-size: 22px;
+}

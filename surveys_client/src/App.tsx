@@ -61,4 +61,4 @@ function App() {
 }
 
 export default App;
-export const baseUrl = "https://shr01.mgts.corp.net:8000";
+export const baseUrl = "https://localhost:8000";

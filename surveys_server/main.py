@@ -29,8 +29,8 @@ async def authorization(request: Request):
 
 
 @app.post("/create_survey")
-async def CreateSurvey(request: Request, username: str = Header(...),
-                       token: str = Header(...)):
+async def create_survey(request: Request, username: str = Header(...),
+                        token: str = Header(...)):
     body = await request.json()
     if token is None or username is None:
         return JSONResponse(content={"message": "Not authorized"}, status_code=401)
@@ -46,24 +46,9 @@ async def CreateSurvey(request: Request, username: str = Header(...),
     survey_visitors = ','.join(body["visitors"])
     try:
         time = parser.parse(body["send_date"])
-    except Exception as e:
+    except Exception:
         time = None
     errors = []
-    addresses = {
-        "г. Москва, Широкая улица, д. 12А": "широкая",
-        "г. Москва, Докучаев переулок, д. 9, стр. 1": "докучаев",
-        "г. Москва, Кленовый бульвар, д. 3": "кленовый",
-        "г. Москва, Зеленоградский окр., корп. 928": "зеленоградский",
-        "г. Москва, 1-й Дорожный проезд, д.3Б": "1-й дорожный проезд",
-        "г. Москва, 5-й Новоподмосковный переулок, д. 6": "новоподмосковный",
-        "г. Москва, Столярный переулок, д. 5, стр. 1": "столярный",
-        "г. Москва, Яблочкова улица, д. 19А": "яблочкова",
-        "г. Москва, Алтуфьевское шоссе, д. 60, корп. 2": "алтуфьевское",
-        "г. Москва, Хачатуряна улица, д. 5": "хачатуряна",
-        "г. Москва, Докукина улица, д. 4": "докукина",
-        "г. Москва, Новослободская улица, д. 29, стр. 2": "новослободская",
-        "г. Москва, Черняховского улица, д. 18": "черняховского"
-    }
     for email in body["emails"]:
         if "@" not in email:
             continue
@@ -99,7 +84,7 @@ async def CreateSurvey(request: Request, username: str = Header(...),
         emails = []
         for email in body["emails"]:
             if "@" not in email:
-                address = addresses[email]
+                address = email
                 emails += find_email_on_address(address)
             else:
                 emails.append(email)
@@ -114,7 +99,7 @@ async def CreateSurvey(request: Request, username: str = Header(...),
 
 
 @app.get("/get_questions/{guid}")
-async def GetQuestions(guid: str):
+async def get_questions(guid: str):
     logging.basicConfig(level=logging.INFO, filename="create_survey.log",
                         format="%(asctime)s %(levelname)s %(message)s")
     logging.info(f"Получаем опрос для {guid}")
@@ -155,22 +140,22 @@ async def GetQuestions(guid: str):
 
 
 @app.post("/answers/{guid}")
-async def Answers(guid: str, request: Request, bgtasks: BackgroundTasks):
+async def answers(guid: str, request: Request, bgtasks: BackgroundTasks):
     body = await request.json()
-    answers = list(body['answers'].values())
+    list_answers = list(body['answers'].values())
     bd = BD()
     bd.set_status_answer(guid)
-    bgtasks.add_task(insert_answers, guid, answers)
+    bgtasks.add_task(insert_answers, guid, list_answers)
     bgtasks.add_task(insert_comments, guid, body['comments'])
     return 200
 
 
-def insert_answers(guid, answers):
+def insert_answers(guid, list_answers):
     bd = BD()
     questions_id = bd.get_user_questions(guid)
     user_id = bd.get_user_id(guid)['id']
-    for i in range(len(answers)):
-        bd.insert_answers(user_id, questions_id[i]['id'], answers[i])
+    for i in range(len(list_answers)):
+        bd.insert_answers(user_id, questions_id[i]['id'], list_answers[i])
 
 
 def insert_comments(guid, comments):
@@ -182,7 +167,7 @@ def insert_comments(guid, comments):
 
 
 @app.get("/get_surveys/{login}")
-async def GetSurveys(login: str, username: str = Header(...), token: str = Header(...)):
+async def get_surveys(login: str, username: str = Header(...), token: str = Header(...)):
     if token is None or username is None:
         return JSONResponse(content={"message": "Not authorized"}, status_code=401)
     bd = BD()
@@ -193,7 +178,7 @@ async def GetSurveys(login: str, username: str = Header(...), token: str = Heade
 
 
 @app.get("/get_survey_file/{survey_id}")
-async def GetSurveyFile(survey_id: int, username: str = Header(...), token: str = Header(...)):
+async def get_survey_file(survey_id: int, username: str = Header(...), token: str = Header(...)):
     if token is None or username is None:
         return JSONResponse(content={"message": "Not authorized"}, status_code=401)
     bd = BD()
@@ -223,7 +208,7 @@ async def GetSurveyFile(survey_id: int, username: str = Header(...), token: str 
 
 
 @app.delete("/delete_survey/{survey_id}")
-async def DeleteSurvey(survey_id: int, username: str = Header(...), token: str = Header(...)):
+async def delete_survey(survey_id: int, username: str = Header(...), token: str = Header(...)):
     if token is None or username is None:
         return JSONResponse(content={"message": "Not authorized"}, status_code=401)
     bd = BD()
@@ -234,7 +219,7 @@ async def DeleteSurvey(survey_id: int, username: str = Header(...), token: str =
 
 
 @app.delete("/delete_front_survey/{survey_id}")
-async def DeleteFrontSurvey(survey_id: int, username: str = Header(...), token: str = Header(...)):
+async def delete_front_survey(survey_id: int, username: str = Header(...), token: str = Header(...)):
     if token is None or username is None:
         return JSONResponse(content={"message": "Not authorized"})
     bd = BD()
@@ -245,13 +230,13 @@ async def DeleteFrontSurvey(survey_id: int, username: str = Header(...), token: 
 
 
 @app.get("/survey_info/{survey_id}")
-async def GetSurveyInfo(survey_id: int):
+async def get_survey_info(survey_id: int):
     bd = BD()
     return bd.get_survey_info(survey_id)
 
 
 @app.post("/recall_survey/{survey_id}")
-async def RecallSurvey(survey_id: int, token: str = Header(...), username: str = Header(...)):
+async def recall_survey(survey_id: int, token: str = Header(...), username: str = Header(...)):
     if token is None or username is None:
         return JSONResponse(content={"message": "Not authorized"})
     bd = BD()

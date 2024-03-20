@@ -19,7 +19,8 @@ CREATE TABLE `question` (
     0 - Числовой
     1 - Словесный
     2 - С вариантами ответа
-  '
+  ',
+  `has_comment` boolean NOT NULL DEFAULT false COMMENT 'Есть ли возможность комментария к вопросу'
 );
 
 CREATE TABLE `variant` (

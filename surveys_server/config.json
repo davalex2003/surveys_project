@@ -1,11 +1,8 @@
 {
-  "user": "mgts\\uticketadmin",
-  "password": "PbnU2kPg!EhK",
   "database": {
     "host": "10.226.213.13",
     "user": "friend",
     "password": "Garethbale29!",
     "database": "surveys_portal"
-  },
-  "ip": "10.227.6.69"
+  }
 }

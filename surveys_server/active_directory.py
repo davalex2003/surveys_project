@@ -35,7 +35,7 @@ def find_email_in_ad(email: str) -> str:
         logging.info("Подключились к АД")
         try:
             tabnum = conn.entries[0]['EmployeeID']
-        except Exception as e:
+        except Exception:
             logging.warning(f"Не удалось найти табельный нигде")
             tabnum = "000000"
     return tabnum
@@ -63,7 +63,7 @@ def find_fio_in_ad(email: str):
                 attributes=["*"])
     try:
         name = conn.entries[0]["displayName"]
-    except Exception as e:
+    except Exception:
         server = ldap3.Server('ldap://msk.mts.ru', get_info=ldap3.NONE)
         conn = ldap3.Connection(server, user="ADMSK\\sa0400ivrhdmgts", password="pxuWkhPr(bdnQR9", auto_bind=True)
         conn.search('OU=MTSUsers,dc=msk,dc=mts,dc=ru', '(mail={})'.format(email), attributes=["*"])

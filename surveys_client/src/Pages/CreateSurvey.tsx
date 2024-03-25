@@ -16,7 +16,6 @@ import DatePicker, {registerLocale} from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import ru from 'date-fns/locale/ru';
 import ChooseType from "../Components/CreateSurvey/ChooseType";
-import AddAddress from "../Components/CreateSurvey/AddAddress";
 
 registerLocale('ru', ru)
 const CreateSurvey = () => {
@@ -65,8 +64,7 @@ const CreateSurvey = () => {
                     }
                     axios.post(url, send_data, {
                         headers: {
-                            "username": username,
-                            "token": token
+                            "Authorization": token
                         }
                     }).then(function (response) {
                         setLoading(false);
@@ -115,7 +113,6 @@ const CreateSurvey = () => {
                         </div>
                         <div className="col xl2 offset-xl1">
                             {selected_type === "e-mail" && <AddEmail/>}
-                            {selected_type === "address" && <AddAddress/>}
                             {emails_data.map((text, i) => {
                                 return <Email text={text} index={i} key={i}/>
                             })}

@@ -1,8 +1,8 @@
 {
   "database": {
-    "host": "10.226.213.13",
-    "user": "friend",
-    "password": "Garethbale29!",
+    "host": "localhost",
+    "user": "backend",
+    "password": "garethbale29",
     "database": "surveys_portal"
   }
 }

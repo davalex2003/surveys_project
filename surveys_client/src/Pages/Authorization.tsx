@@ -12,21 +12,16 @@ export const login = async (username: string, password: string, navigate: Naviga
     const response = await axios
         .post(`${baseUrl}/authorization`, {
             username,
-            password,
+            password
         });
     if ("token" in response.data) {
         localStorage.setItem("user", JSON.stringify(response.data));
         navigate('/create_survey');
     } else {
-        if (response.data.message === "Not a owner") {
-            window.alert("У вас отсутствуют права для доступа к сервису.")
-            window.location.reload();
-        } else {
-            window.alert("Неверный логин или пароль")
-            setPassword('');
-        }
+        window.alert("Неверный логин или пароль")
+        setPassword('');
     }
-};
+}
 
 export const logout = () => {
     localStorage.removeItem("user");

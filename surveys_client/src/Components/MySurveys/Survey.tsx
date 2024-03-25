@@ -29,14 +29,13 @@ const correct_date = (date: string) => {
 
 const downloadExcelFile = (name: string, bd_id: number) => {
     const user = localStorage.getItem('user');
-    const username = user ? JSON.parse(user).username : '';
     const token = user ? JSON.parse(user).token : '';
     axios({
         url: `${baseUrl}/get_survey_file/${bd_id}`,
         method: 'GET',
         responseType: 'blob',
         headers: {
-            "username": username, "token": token
+            "Authorization": token
         }
     })
         .then((response) => {
@@ -57,13 +56,12 @@ const deleteSurvey = (bd_id: number) => {
     let ok = window.confirm("Вы уверены, что хотите удалить опрос? Если да, нажмите Ок.")
     if (ok) {
         const user = localStorage.getItem('user');
-        const username = user ? JSON.parse(user).username : '';
         const token = user ? JSON.parse(user).token : '';
         axios({
             url: `${baseUrl}/delete_front_survey/${bd_id}`,
             method: 'DELETE',
             headers: {
-                "username": username, "token": token
+                "Authorization": token
             }
         })
         window.location.reload()
@@ -74,13 +72,12 @@ const recallSurvey = (bd_id: number) => {
     let ok = window.confirm("Вы уверены, что хотите отозвать опрос? Если да, нажмите Ок.")
     if (ok) {
         const user = localStorage.getItem('user');
-        const username = user ? JSON.parse(user).username : '';
         const token = user ? JSON.parse(user).token : '';
         axios({
             url: `${baseUrl}/recall_survey/${bd_id}`,
             method: 'POST',
             headers: {
-                "username": username, "token": token
+                "Authorization": token
             }
         })
         window.location.reload()
@@ -100,7 +97,7 @@ const copySurvey = (bd_id: number) => {
     const user = localStorage.getItem('user');
     const username = user ? JSON.parse(user).username : '';
     const token = user ? JSON.parse(user).token : '';
-    axios.get(url, {headers: {"username": username, "token": token}}).then((r) => {
+    axios.get(url, {headers: {"Authorization": token}}).then((r) => {
         const surveyData: SurveyData = r.data;
         const send_data = {
             'name': surveyData.survey_name + " (копия)",
@@ -111,8 +108,7 @@ const copySurvey = (bd_id: number) => {
         }
         axios.post(baseUrl + "/create_survey", send_data, {
             headers: {
-                "username": username,
-                "token": token
+                "Authorization": token
             }
         })
         window.location.reload()

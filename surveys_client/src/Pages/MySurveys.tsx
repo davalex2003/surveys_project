@@ -20,7 +20,7 @@ const MySurveys = () => {
     const token = user ? JSON.parse(user).token : '';
     const [state, setState] = useState<SurveyData[]>([]);
     useEffect(() => {
-        axios.get(baseUrl + `/get_surveys/${username}`, {headers: {"username": username, "token": token}}).then((r) => {
+        axios.get(baseUrl + `/get_surveys/${username}`, {headers: {"Authorization": token}}).then((r) => {
             const surveysData: SurveyData[] = r.data;
             setState(surveysData);
         })

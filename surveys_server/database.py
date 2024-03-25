@@ -1,5 +1,4 @@
 import logging
-import os
 import json
 import sys
 
@@ -11,8 +10,7 @@ class BD:
     def __init__(self):
         logging.basicConfig(level=logging.INFO, filename="create_survey.log", format="%(asctime)s %(levelname)s %("
                                                                                      "message)s")
-        json_path = os.path.dirname(os.path.abspath(__file__))
-        with open(rf'{json_path}\config.json', encoding='utf8') as f:
+        with open('config.json', encoding='utf8') as f:
             self.__params = json.load(f)['database']
             f.close()
         try:
@@ -22,17 +20,17 @@ class BD:
             logging.error(f"Не подключились к БД: {e}")
             sys.exit(-1)
 
-    def check_owner(self, login):
+    def check_owner(self, login, hash_password):
         with self.connection.cursor() as cursor:
-            sql = "SELECT * FROM owner WHERE login = %s"
-            cursor.execute(sql, login)
+            sql = "SELECT * FROM owner WHERE login = %s AND hash_password = %s"
+            cursor.execute(sql, (login, hash_password))
             logging.info(f"Проверили допуск в БД для {login}")
         return cursor.fetchone()
 
-    def validate_token(self, login, token):
+    def validate_token(self, login, hash_password):
         with self.connection.cursor() as cursor:
-            sql = "SELECT * FROM owner WHERE login = %s AND token = %s"
-            cursor.execute(sql, (login, token))
+            sql = "SELECT * FROM owner WHERE login = %s AND hash_password = %s"
+            cursor.execute(sql, (login, hash_password))
             logging.info(f"Проверили токен для {login}")
         return cursor.fetchone()
 
@@ -73,10 +71,10 @@ class BD:
         self.connection.commit()
         logging.info("Новая запись варианта в БД создана")
 
-    def insert_new_email(self, tabnum, email, survey_id, guid):
+    def insert_new_email(self, email, survey_id, guid):
         with self.connection.cursor() as cursor:
-            sql = "INSERT INTO user(tabnum, e_mail, status, survey_id, guid) VALUES (%s, %s, %s, %s, %s)"
-            cursor.execute(sql, (tabnum, email, False, survey_id, guid))
+            sql = "INSERT INTO user(e_mail, status, survey_id, guid) VALUES (%s, %s, %s, %s)"
+            cursor.execute(sql, (email, False, survey_id, guid))
         self.connection.commit()
         logging.info("Новая запись участника в БД создана")
 

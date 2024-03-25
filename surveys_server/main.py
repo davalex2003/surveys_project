@@ -10,7 +10,7 @@ import pandas as pd
 from starlette.responses import JSONResponse
 
 from database import BD
-from active_directory import find_email_in_ad, validate, find_fio_in_ad, find_email_on_address
+from jwt_worker import decode_data, encode_data
 
 app = FastAPI()
 
@@ -19,25 +19,26 @@ app = FastAPI()
 async def authorization(request: Request):
     body = await request.json()
     login = body["username"]
-    if validate(login, body["password"]):
-        bd = BD()
-        info = bd.check_owner(login)
-        if info is None:
-            return {"message": "Not a owner"}
-        return {"token": info["token"], "username": body["username"], "fio": info["fio"]}
-    return {"message": "Wrong username or password"}
+    hash_password = body["password"]
+    bd = BD()
+    info = bd.check_owner(login, hash_password)
+    if info is None:
+        return {"message": "Wrong password"}
+    return {"token": encode_data({"login": login, "hash_password": hash_password}), "username": body["username"],
+            "fio": info["fio"]}
 
 
 @app.post("/create_survey")
-async def create_survey(request: Request, username: str = Header(...),
-                        token: str = Header(...)):
+async def create_survey(request: Request):
     body = await request.json()
-    if token is None or username is None:
+    token = request.headers['Authorization']
+    if token is None:
         return JSONResponse(content={"message": "Not authorized"}, status_code=401)
     logging.basicConfig(level=logging.INFO, filename="create_survey.log",
                         format="%(asctime)s %(levelname)s %(message)s")
     bd = BD()
-    info = bd.validate_token(username, token)
+    data = decode_data(token)
+    info = bd.validate_token(data['login'], data['hash_password'])
     if info is None:
         return JSONResponse(content={"message": "Not authorized"}, status_code=401)
     logging.info(f"Новый опрос: {body}")
@@ -51,9 +52,6 @@ async def create_survey(request: Request, username: str = Header(...),
     errors = []
     for email in body["emails"]:
         if "@" not in email:
-            continue
-        tabnum = find_email_in_ad(email)
-        if tabnum == "000000":
             errors.append(email)
     if len(errors) > 0:
         return errors
@@ -81,19 +79,9 @@ async def create_survey(request: Request, username: str = Header(...),
                 for variant in variants:
                     variant_to_bd = variant.strip().replace('(', '').replace(')', '')
                     bd.insert_new_variant(question_id, variant_to_bd)
-        emails = []
         for email in body["emails"]:
-            if "@" not in email:
-                address = email
-                emails += find_email_on_address(address)
-            else:
-                emails.append(email)
-        for email in emails:
-            tabnum = find_email_in_ad(email)
             guid = uuid.uuid4()
-            bd.insert_new_email(tabnum, email, survey_id, guid)
-        response = Response()
-        response.status_code = 200
+            bd.insert_new_email(email, survey_id, guid)
         logging.info(f"Новый опрос записан в БД")
         return []
 
@@ -167,26 +155,30 @@ def insert_comments(guid, comments):
 
 
 @app.get("/get_surveys/{login}")
-async def get_surveys(login: str, username: str = Header(...), token: str = Header(...)):
-    if token is None or username is None:
+async def get_surveys(login: str, request: Request):
+    token = request.headers['Authorization']
+    if token is None:
         return JSONResponse(content={"message": "Not authorized"}, status_code=401)
     bd = BD()
-    info = bd.validate_token(username, token)
+    data = decode_data(token)
+    info = bd.validate_token(data['login'], data['hash_password'])
     if info is None:
         return JSONResponse(content={"message": "Not authorized"}, status_code=401)
     return bd.get_surveys(login)[::-1]
 
 
 @app.get("/get_survey_file/{survey_id}")
-async def get_survey_file(survey_id: int, username: str = Header(...), token: str = Header(...)):
-    if token is None or username is None:
+async def get_survey_file(survey_id: int, request: Request):
+    token = request.headers['Authorization']
+    if token is None:
         return JSONResponse(content={"message": "Not authorized"}, status_code=401)
     bd = BD()
-    info = bd.validate_token(username, token)
+    data = decode_data(token)
+    info = bd.validate_token(data['login'], data['hash_password'])
     if info is None:
         return JSONResponse(content={"message": "Not authorized"}, status_code=401)
     data = bd.get_survey_answers(survey_id)
-    columns = ["Участник", "Почта"]
+    columns = ["Почта"]
     num_of_questions = bd.get_num_surveys_questions(survey_id)['total']
     for i in range(0, num_of_questions):
         columns.append(data[i]['text'])
@@ -194,8 +186,7 @@ async def get_survey_file(survey_id: int, username: str = Header(...), token: st
             columns.append("Комментарий")
     df = pd.DataFrame(columns=columns)
     for i in range(0, len(data), num_of_questions):
-        fio = find_fio_in_ad(data[i]['e_mail'])
-        row = [fio, data[i]['e_mail']]
+        row = [data[i]['e_mail']]
         for j in range(i, i + num_of_questions):
             row.append(data[j]['answer'] if data[j]['answer'] is not None else "-")
             if data[j]['has_comment'] == 1:
@@ -208,22 +199,26 @@ async def get_survey_file(survey_id: int, username: str = Header(...), token: st
 
 
 @app.delete("/delete_survey/{survey_id}")
-async def delete_survey(survey_id: int, username: str = Header(...), token: str = Header(...)):
-    if token is None or username is None:
+async def delete_survey(survey_id: int, request: Request):
+    token = request.headers['Authorization']
+    if token is None:
         return JSONResponse(content={"message": "Not authorized"}, status_code=401)
     bd = BD()
-    info = bd.validate_token(username, token)
+    data = decode_data(token)
+    info = bd.validate_token(data['login'], data['hash_password'])
     if info is None:
         return JSONResponse(content={"message": "Not authorized"}, status_code=401)
     bd.delete_survey(survey_id)
 
 
 @app.delete("/delete_front_survey/{survey_id}")
-async def delete_front_survey(survey_id: int, username: str = Header(...), token: str = Header(...)):
-    if token is None or username is None:
-        return JSONResponse(content={"message": "Not authorized"})
+async def delete_front_survey(survey_id: int, request: Request):
+    token = request.headers['Authorization']
+    if token is None:
+        return JSONResponse(content={"message": "Not authorized"}, status_code=401)
     bd = BD()
-    info = bd.validate_token(username, token)
+    data = decode_data(token)
+    info = bd.validate_token(data['login'], data['hash_password'])
     if info is None:
         return JSONResponse(content={"message": "Not authorized"})
     bd.delete_survey_from_frontend(survey_id)
@@ -236,11 +231,13 @@ async def get_survey_info(survey_id: int):
 
 
 @app.post("/recall_survey/{survey_id}")
-async def recall_survey(survey_id: int, token: str = Header(...), username: str = Header(...)):
-    if token is None or username is None:
-        return JSONResponse(content={"message": "Not authorized"})
+async def recall_survey(survey_id: int, request: Request):
+    token = request.headers['Authorization']
+    if token is None:
+        return JSONResponse(content={"message": "Not authorized"}, status_code=401)
     bd = BD()
-    info = bd.validate_token(username, token)
+    data = decode_data(token)
+    info = bd.validate_token(data['login'], data['hash_password'])
     if info is None:
         return JSONResponse(content={"message": "Not authorized"})
     bd.recall_survey(survey_id)

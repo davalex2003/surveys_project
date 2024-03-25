@@ -45,7 +45,7 @@ const EditSurvey = () => {
         dispatch(removeQuestions())
         dispatch(removeVisitors())
         dispatch(removeEmails())
-        axios.get(url, {headers: {"username": username, "token": token}}).then((r) => {
+        axios.get(url, {headers: {"Authorization": token}}).then((r) => {
             const surveyData: SurveyData = r.data;
             if (surveyData.survey_send_date === null) {
                 surveyData.survey_send_date = (new Date()).toString()
@@ -98,14 +98,13 @@ const EditSurvey = () => {
                         url: `${baseUrl}/delete_survey/${id}`,
                         method: 'DELETE',
                         headers: {
-                            "username": username, "token": token
+                            "Authorization": token
                         }
                     })
                     console.log(send_data)
                     axios.post(`${baseUrl}/create_survey`, send_data, {
                         headers: {
-                            "username": username,
-                            "token": token
+                            "Authorization": token
                         }
                     }).then(function (response) {
                         if (response.data.length === 0) {

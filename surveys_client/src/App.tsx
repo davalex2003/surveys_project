@@ -1,5 +1,4 @@
 import React from 'react';
-import './App.css';
 import CreateSurvey from "./Pages/CreateSurvey";
 import MySurveys from "./Pages/MySurveys";
 import {BrowserRouter, Routes, Route, Navigate, useLocation} from "react-router-dom";
@@ -61,4 +60,4 @@ function App() {
 }
 
 export default App;
-export const baseUrl = "https://localhost:8000";
+export const baseUrl = "http://localhost:8000";

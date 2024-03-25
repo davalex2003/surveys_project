@@ -3,7 +3,7 @@
     padding: 0;
     box-sizing: border-box;
     font-family: MTSText-Regular, sans-serif;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .container {
@@ -26,10 +26,10 @@
 
 .btn {
     font-family: MTSText-Regular, sans-serif;
-    font-size: 16px;
+    font-size: 14px;
     background-color: #0083CA !important;
 }
 
 nav ul a {
-    font-size: 22px;
+    font-size: 20px;
 }

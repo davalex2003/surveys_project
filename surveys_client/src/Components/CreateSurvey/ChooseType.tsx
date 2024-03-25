@@ -17,7 +17,7 @@ const ChooseType = (props: ChooseTypeProps) => {
             <select className="browser-default" defaultValue={selectedValue} onChange={handleSelectChange}>
                 <option value="" disabled>Добавить участника</option>
                 <option value="e-mail">По почте</option>
-                <option value="address">По объекту</option>
+                <option value="address" disabled>По объекту</option>
                 <option value="role" disabled>По роли</option>
                 <option value="unit" disabled>По подразделению</option>
             </select>
